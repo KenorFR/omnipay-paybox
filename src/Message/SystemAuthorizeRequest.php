@@ -8,7 +8,6 @@ namespace Omnipay\Paybox\Message;
 class SystemAuthorizeRequest extends AbstractRequest
 {
     protected $onlyAuthorize = true;
-    protected $urlEncodeNotify = true;
     /**
      * Transaction time in timezone format e.g 2011-02-28T11:01:50+01:00.
      *
@@ -129,15 +128,7 @@ class SystemAuthorizeRequest extends AbstractRequest
             'PBX_IDENTIFIANT' => $this->getIdentifiant(),
         ];
     }
-    public function setUrlEncodeNotifyUrl($value) 
-    {
-       $this->urlEncodeNotify = $value;
-    }
 
-    public function shouldUrlEncodeNotifyUrl() 
-    {
-        return (bool) $this->urlEncodeNotify;
-    }
     /**
      * Get values for IPN and browser return urls.
      *
@@ -147,11 +138,7 @@ class SystemAuthorizeRequest extends AbstractRequest
     {
         $data = [];
         if ($this->getNotifyUrl()) {
-            if($this->shouldUrlEncodeNotify()) {
-                $data['PBX_REPONDRE_A'] = urlencode($this->getNotifyUrl());
-            } else {
-                $data['PBX_REPONDRE_A'] = $this->getNotifyUrl();
-            }
+            $data['PBX_REPONDRE_A'] = $this->getNotifyUrl();
         }
         if ($this->getReturnUrl()) {
             $data['PBX_EFFECTUE'] = $this->getReturnUrl();
