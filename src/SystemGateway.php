@@ -125,6 +125,46 @@ class SystemGateway extends AbstractGateway
         return $this->getParameter('transactionType');
     }
 
+    public function getRefAbonne()
+    {
+        return $this->getParameter('refabonne');
+    }
+
+    public function setRefAbonne($value)
+    {
+        return $this->setParameter('refabonne', $value);
+    }
+
+    public function getDateval()
+    {
+        return $this->getParameter('dateval');
+    }
+
+    public function setDateval($value)
+    {
+        return $this->setParameter('dateval', $value);
+    }
+
+    public function getToken()
+    {
+        return $this->getParameter('token');
+    }
+
+    public function setToken($value)
+    {
+        return $this->setParameter('token', $value);
+    }
+
+    public function getWantAbonne()
+    {
+        return $this->getParameter('wantAbonne');
+    }
+
+    public function setWantAbonne($value)
+    {
+        return $this->setParameter('wantAbonne', $value);
+    }
+
     public function setTransactionType($value)
     {
         return $this->setParameter('transactionType', $value);

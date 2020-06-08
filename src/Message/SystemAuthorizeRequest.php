@@ -42,7 +42,7 @@ class SystemAuthorizeRequest extends AbstractRequest
             $this->validate($field);
         }
         $this->validateCardFields();
-        $data = $this->getBaseData() + $this->getTransactionData() + $this->getURLData();
+        $data = $this->getBaseData() + $this->getTransactionData() + $this->getURLData() + $this->getAbonne();
         if ($this->onlyAuthorize) {
             $data['PBX_AUTOSEULE'] = 'O';
         }
@@ -108,13 +108,36 @@ class SystemAuthorizeRequest extends AbstractRequest
     public function getTransactionData()
     {
         return [
+            'PBX_HASH' => 'SHA512',
             'PBX_TOTAL' => $this->getAmountInteger(),
             'PBX_DEVISE' => $this->getCurrencyNumeric(),
             'PBX_CMD' => $this->getTransactionId(),
             'PBX_PORTEUR' => $this->getCard()->getEmail(),
-            'PBX_RETOUR' => 'Mt:M;Id:R;Ref:A;Erreur:E;sign:K;3d:G',
+            // liste des lettres : (page 9) https://www.ca-moncommerce.com/wp-content/uploads/2018/08/tableau_correspondance_sips_atos-paybox_v4.pdf
+            'PBX_RETOUR' => 'Mt:M;Id:R;Ref:A;Erreur:E'
+                . ($this->getWantAbonne() ? ';Abo:U;CardType:C;CardEmpreinte:H;Card2LastNumber:J;Card6FirstNumber:N' : '')
+                . ($this->getToken() ? ';AboUse:B' : '')
+                . ';3d:G;sign:K',
             'PBX_TIME' => $this->getTime(),
         ];
+    }
+
+    public function getAbonne()
+    {
+        $return = [];
+
+        if ($this->getRefAbonne() && $this->getToken()) {
+            $return = [
+                'PBX_REFABONNE' => $this->getRefAbonne(),
+                'PBX_TOKEN' => $this->getToken(),
+            ];
+
+            if ($this->getDateval()) {
+                $return['PBX_DATEVAL'] = $this->getDateval();
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -165,9 +188,9 @@ class SystemAuthorizeRequest extends AbstractRequest
     public function getEndpoint()
     {
         if ($this->getTestMode()) {
-            return 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+            return 'https://preprod-tpeweb.e-transactions.fr/cgi/MYchoix_pagepaiement.cgi';
         } else {
-            return 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+            return 'https://tpeweb.e-transactions.fr/cgi/MYchoix_pagepaiement.cgi';
         }
     }
 
